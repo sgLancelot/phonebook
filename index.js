@@ -1,8 +1,15 @@
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
+const morgan = require('morgan')
 
 app.use(bodyParser.json())
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :data'))
+
+morgan.token('data', (req) => {
+    return JSON.stringify(req.body)
+})
+
 
 let persons = [
     {
@@ -39,9 +46,9 @@ app.get('/api/persons/:id', (req,res) => {
     const id = Number(req.params.id)
     const person = persons.find(x=>x.id===id)
     if (person) {
-        res.json(person)
-    }
-    res.status(404).end()
+        return res.json(person)
+    } else {
+        res.status(404).end()}
 })
 
 app.delete('/api/persons/:id', (req,res) => {
@@ -61,12 +68,11 @@ app.post('/api/persons', (req,res) => {
         return res.status(400).json({
             error: 'name must be unique'
         })
-    }
+    } else {
+        person.id = Math.floor(Math.random() * 50 + 1)
+        persons = persons.concat(person)
 
-    person.id = Math.floor(Math.random() * 50 + 1)
-    persons = persons.concat(person)
-
-    res.json(persons)
+        res.json(persons)}
 })
 
 
