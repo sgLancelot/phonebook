@@ -15,13 +15,13 @@ morgan.token('data', (req) => {
     return JSON.stringify(req.body)
 })
 
-let persons = []
-
 app.get('/info', (req,res) => {
-    res.send(
-        `<p>Phonebook has info for ${persons.length} people</p>
+    Person.find({}).then(x => {
+        res.send(`<p>Phonebook has info for 
+        ${x.reduce((sum, y) => {return sum + 1},0)} people</p> 
         ${Date()}`)
     })
+})
 
 app.get('/api/persons', (req,res) => {
     Person.find({}).then(x => {
@@ -36,27 +36,25 @@ app.get('/api/persons/:id', (req,res) => {
 })
 
 app.delete('/api/persons/:id', (req,res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(x => x.id !== id)
-    res.status(204).end()
+    Person.findByIdAndDelete(req.params.id).then(x=> {
+        res.status(204).end()
+    })
 })
 
 app.post('/api/persons', (req,res) => {
     const person = req.body
-// error 400 if name or number missing, name already in phonebook
+    // error 400 if name or number missing, name already in phonebook
     if (!person.name || !person.number) {
-        return res.status(400).json({
-            error: 'name or number missing'
-        })
-    } else if (persons.find(x=>x.name===person.name)) {
-        return res.status(400).json({
-            error: 'name must be unique'
-        })
+        return res.status(400).json({error: 'name or number missing'})
     } else {
-        person.id = Math.floor(Math.random() * 50 + 1)
-        persons = persons.concat(person)
-
-        res.json(persons)}
+        const newPerson = new Person({
+            name: person.name,
+            number: person.number,
+    })
+        newPerson.save().then(x => {
+            res.json(x.toJSON())
+        })
+    }
 })
 
 const PORT = process.env.PORT
