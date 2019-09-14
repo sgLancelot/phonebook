@@ -15,15 +15,15 @@ morgan.token('data', (req) => {
     return JSON.stringify(req.body)
 })
 
-app.get('/info', (req,res) => {
+app.get('/info', (_req,res) => {
     Person.find({}).then(x => {
         res.send(`<p>Phonebook has info for 
-        ${x.reduce((sum, y) => {return sum + 1},0)} people</p> 
+        ${x.reduce((sum) => {return sum + 1},0)} people</p> 
         ${Date()}`)
     })
 })
 
-app.get('/api/persons', (req,res) => {
+app.get('/api/persons', (_req,res) => {
     Person.find({}).then(x => {
         res.json(x.map(person => person.toJSON()))
     })
@@ -41,7 +41,7 @@ app.get('/api/persons/:id', (req,res,next) => {
 })
 
 app.delete('/api/persons/:id', (req,res) => {
-    Person.findByIdAndDelete(req.params.id).then(x=> {
+    Person.findByIdAndDelete(req.params.id).then(()=> {
         res.status(204).end()
     })
 })
@@ -63,14 +63,14 @@ app.post('/api/persons', (req,res,next) => {
     }
 })
 
-app.put('/api/persons/:id', (req,res)=> {
+app.put('/api/persons/:id', (req,res,next)=> {
     Person.findByIdAndUpdate(req.params.id, req.body, {new:true}).then(x=> {
         res.json(x.toJSON())
     })
         .catch(error => next(error))
 })
 
-const errorHandler = (error, request, response, next) => {
+const errorHandler = (error, _request, response, next) => {
     console.error(error.message)
   
     if (error.name === 'CastError' && error.kind === 'ObjectId') {
