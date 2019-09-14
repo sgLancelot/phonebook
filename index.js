@@ -37,7 +37,7 @@ app.get('/api/persons/:id', (req,res,next) => {
             res.status(404).end()
         }  
     })
-    .catch(error => next(error))
+        .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req,res) => {
@@ -55,11 +55,11 @@ app.post('/api/persons', (req,res,next) => {
         const newPerson = new Person({
             name: person.name,
             number: person.number,
-    })
+        })
         newPerson.save().then(x => {
             res.json(x.toJSON())
         })
-        .catch(error => next(error))
+            .catch(error => next(error))
     }
 })
 
@@ -67,7 +67,7 @@ app.put('/api/persons/:id', (req,res)=> {
     Person.findByIdAndUpdate(req.params.id, req.body, {new:true}).then(x=> {
         res.json(x.toJSON())
     })
-    .catch(error=>next(error))
+        .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
