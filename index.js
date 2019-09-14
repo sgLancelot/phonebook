@@ -46,7 +46,7 @@ app.delete('/api/persons/:id', (req,res) => {
     })
 })
 
-app.post('/api/persons', (req,res) => {
+app.post('/api/persons', (req,res,next) => {
     const person = req.body
     // error 400 if name or number missing, name already in phonebook
     if (!person.name || !person.number) {
@@ -59,6 +59,7 @@ app.post('/api/persons', (req,res) => {
         newPerson.save().then(x => {
             res.json(x.toJSON())
         })
+        .catch(error => next(error))
     }
 })
 
@@ -73,9 +74,10 @@ const errorHandler = (error, request, response, next) => {
     console.error(error.message)
   
     if (error.name === 'CastError' && error.kind === 'ObjectId') {
-      return response.status(400).send({ error: 'malformatted id' })
-    } 
-  
+        return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).send({error:error.message})
+    }
     next(error)
 }
   
